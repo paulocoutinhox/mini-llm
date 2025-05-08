@@ -41,7 +41,7 @@ def load_model(force_train=False, use_original=False):
         )
         model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, **config_kwargs)
     elif not force_train:
-        print(f"✅ Using saved fine-tuned model (based on {MODEL_NAME})")
+        print(f"✅ Using saved fine-tuned model")
         model = AutoModelForCausalLM.from_pretrained(MODEL_DIR, **config_kwargs)
     else:
         print(f"🔁 Loading pre-trained model: {MODEL_NAME}")

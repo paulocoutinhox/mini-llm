@@ -147,7 +147,7 @@ def main():
                 print("Error: Prompt is required for generation mode")
                 sys.exit(1)
 
-            model_type = "Original" if args.use_original else "Fine-tuned"
+            model_type = "original" if args.use_original else "fine-tuned"
             print(f"\n📜 Prompt: {args.prompt}")
             print(f"\n📘 Generated Text ({model_type} model):\n")
             print(generate_text(model, tokenizer, args.prompt, device))

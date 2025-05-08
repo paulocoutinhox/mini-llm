@@ -14,6 +14,7 @@ __pycache__
 
 # Backup files #
 *.bak
+*.tar.gz
 
 # If you are using PyCharm #
 .idea/**/workspace.xml
