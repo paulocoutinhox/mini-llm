@@ -29,13 +29,19 @@ def load_model(force_train=False, use_original=False):
         AutoModelForCausalLM: The loaded model
     """
     if use_original:
-        print("🌍 Using original pre-trained model (without fine-tuning).")
+        print(
+            f"🌍 Using original pre-trained model: {MODEL_NAME} (without fine-tuning)"
+        )
         model = AutoModelForCausalLM.from_pretrained(MODEL_NAME)
     elif not force_train:
-        print("✅ Using saved fine-tuned model.")
+        print(f"✅ Using saved fine-tuned model (based on {MODEL_NAME})")
         model = AutoModelForCausalLM.from_pretrained(MODEL_DIR)
     else:
-        print("🔁 Loading pre-trained model...")
+        print(f"🔁 Loading pre-trained model: {MODEL_NAME}")
         model = AutoModelForCausalLM.from_pretrained(MODEL_NAME)
+
+    # Display model parameters count
+    model_parameters = sum(p.numel() for p in model.parameters())
+    print(f"📊 Model parameters: {model_parameters/1000000:.2f}M")
 
     return model
