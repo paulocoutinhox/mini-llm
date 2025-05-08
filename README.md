@@ -242,11 +242,6 @@ The project supports a wide range of models from Hugging Face. Here are some pop
 - `rufimelo/portuguese-gpt2-large` (774M) – Larger Portuguese model
 - `nauvu/brazilian-legal-bert` (110M) – Specialized for Brazilian legal texts
 
-To use any of these models, simply change the `MODEL_NAME` in `config/settings.py`:
-```python
-MODEL_NAME = "EleutherAI/gpt-neo-2.7B"
-```
-
 Note: Model availability and compatibility may change. Check the model's documentation on Hugging Face for specific requirements and limitations.
 
 ## License
