@@ -161,7 +161,7 @@ def train_model(model, split_dataset, data_collator, tokenizer):
         train_dataset=split_dataset["train"],  # Training dataset
         eval_dataset=split_dataset["test"],  # Validation dataset
         data_collator=data_collator,  # Function to create batches
-        tokenizer=tokenizer,  # Pass tokenizer to ensure it's saved with the model
+        processing_class=tokenizer,  # Pass tokenizer to ensure it's saved with the model
     )
 
     # Run training
