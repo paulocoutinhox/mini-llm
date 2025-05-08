@@ -244,6 +244,28 @@ The project supports a wide range of models from Hugging Face. Here are some pop
 
 Note: Model availability and compatibility may change. Check the model's documentation on Hugging Face for specific requirements and limitations.
 
+## Training on Limited Hardware
+
+When training on hardware with limited memory (like GPUs with less than 6GB of VRAM), the system will automatically:
+
+1. Detect low memory conditions
+2. Reduce batch size to 1
+3. Increase gradient accumulation steps to 16
+4. Enable gradient checkpointing when supported by the model
+
+These optimizations allow you to train even on older or less powerful GPUs, though training will be slower.
+
+For very large models (7B+ parameters), consider using:
+- A smaller model
+- 8-bit quantization (requires the `bitsandbytes` library)
+- CPU-only training (much slower but uses system RAM)
+
+Recommended models for low-memory GPUs (2-4GB VRAM):
+- `gpt2` (124M)
+- `distilgpt2` (82M)
+- `facebook/opt-125m` (125M)
+- `bigscience/bloom-560m` (560M)
+
 ## License
 
 [MIT](http://opensource.org/licenses/MIT)
