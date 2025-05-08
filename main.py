@@ -43,6 +43,13 @@ def parse_args():
         help="Clean temporary directory before training (removes all cached data)",
     )
 
+    # Add option to use original model without fine-tuning
+    parser.add_argument(
+        "--use-original",
+        action="store_true",
+        help="Use the original model without fine-tuning (for comparison)",
+    )
+
     return parser.parse_args()
 
 
@@ -53,7 +60,7 @@ def main():
     # Setup
     device = get_device()
     tokenizer = load_tokenizer()
-    model = load_model(force_train=args.train)
+    model = load_model(force_train=args.train, use_original=args.use_original)
 
     # Resize token embeddings to match the tokenizer's vocabulary size
     # This is necessary because:
@@ -89,8 +96,9 @@ def main():
             print("Error: Prompt is required for generation mode")
             sys.exit(1)
 
-        print("\n📜 Prompt:", args.prompt)
-        print("\n📘 Generated Text:\n")
+        model_type = "Original" if args.use_original else "Fine-tuned"
+        print(f"\n📜 Prompt: {args.prompt}")
+        print(f"\n📘 Generated Text ({model_type} model):\n")
         print(generate_text(model, tokenizer, args.prompt, device))
 
 

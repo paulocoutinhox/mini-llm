@@ -19,16 +19,20 @@ def load_tokenizer():
     return tokenizer
 
 
-def load_model(force_train=False):
+def load_model(force_train=False, use_original=False):
     """
     Load the model, either from saved state or pre-trained
     Args:
         force_train (bool): Whether to force retraining the model
+        use_original (bool): Whether to use the original model without fine-tuning
     Returns:
         AutoModelForCausalLM: The loaded model
     """
-    if not force_train:
-        print("✅ Using saved model.")
+    if use_original:
+        print("🌍 Using original pre-trained model (without fine-tuning).")
+        model = AutoModelForCausalLM.from_pretrained(MODEL_NAME)
+    elif not force_train:
+        print("✅ Using saved fine-tuned model.")
         model = AutoModelForCausalLM.from_pretrained(MODEL_DIR)
     else:
         print("🔁 Loading pre-trained model...")
