@@ -28,32 +28,24 @@ def load_model(force_train=False, use_original=False):
     Returns:
         AutoModelForCausalLM: The loaded model
     """
+    # Determine loading configuration based on memory availability
+    config_kwargs = {
+        "ignore_mismatched_sizes": True,
+        "trust_remote_code": True,
+        "torch_dtype": "auto",
+    }
+
     if use_original:
         print(
             f"🌍 Using original pre-trained model: {MODEL_NAME} (without fine-tuning)"
         )
-        model = AutoModelForCausalLM.from_pretrained(
-            MODEL_NAME,
-            ignore_mismatched_sizes=True,
-            trust_remote_code=True,
-            torch_dtype="auto",
-        )
+        model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, **config_kwargs)
     elif not force_train:
         print(f"✅ Using saved fine-tuned model (based on {MODEL_NAME})")
-        model = AutoModelForCausalLM.from_pretrained(
-            MODEL_DIR,
-            ignore_mismatched_sizes=True,
-            trust_remote_code=True,
-            torch_dtype="auto",
-        )
+        model = AutoModelForCausalLM.from_pretrained(MODEL_DIR, **config_kwargs)
     else:
         print(f"🔁 Loading pre-trained model: {MODEL_NAME}")
-        model = AutoModelForCausalLM.from_pretrained(
-            MODEL_NAME,
-            ignore_mismatched_sizes=True,
-            trust_remote_code=True,
-            torch_dtype="auto",
-        )
+        model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, **config_kwargs)
 
     # Display model parameters count
     model_parameters = sum(p.numel() for p in model.parameters())
