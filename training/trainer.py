@@ -57,13 +57,14 @@ def prepare_dataset(tokenizer):
     return split_dataset, data_collator
 
 
-def train_model(model, split_dataset, data_collator):
+def train_model(model, split_dataset, data_collator, tokenizer):
     """
     Train the model using the provided dataset
     Args:
         model: The model to train
         split_dataset: The tokenized dataset split into train and validation
         data_collator: The data collator for batching
+        tokenizer: The tokenizer used for training
     """
     from config.settings import USE_CPU
 
@@ -160,10 +161,17 @@ def train_model(model, split_dataset, data_collator):
         train_dataset=split_dataset["train"],  # Training dataset
         eval_dataset=split_dataset["test"],  # Validation dataset
         data_collator=data_collator,  # Function to create batches
+        tokenizer=tokenizer,  # Pass tokenizer to ensure it's saved with the model
     )
 
     # Run training
     trainer.train()
 
-    # Save the final model
+    # Save the final model and tokenizer
     trainer.save_model(MODEL_DIR)
+    print("✅ Model saved successfully")
+
+    # Save tokenizer to ensure consistency between training and inference
+    tokenizer = trainer.tokenizer
+    tokenizer.save_pretrained(MODEL_DIR)
+    print("✅ Tokenizer saved successfully")

@@ -139,7 +139,7 @@ def main():
 
             print("🔁 Training model...")
             tokenized_dataset, data_collator = prepare_dataset(tokenizer)
-            train_model(model, tokenized_dataset, data_collator)
+            train_model(model, tokenized_dataset, data_collator, tokenizer)
             print("✅ Training completed!")
 
         elif args.generate:
