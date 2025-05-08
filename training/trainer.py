@@ -60,6 +60,9 @@ def train_model(model, split_dataset, data_collator):
         split_dataset: The tokenized dataset split into train and validation
         data_collator: The data collator for batching
     """
+
+    # Doc: https://huggingface.co/docs/transformers/en/main_classes/trainer
+
     # Training arguments configuration
     training_args = TrainingArguments(
         output_dir=MODEL_DIR,  # Directory where model checkpoints will be saved
@@ -67,7 +70,7 @@ def train_model(model, split_dataset, data_collator):
         num_train_epochs=10,  # Total number of training epochs to perform
         per_device_train_batch_size=4,  # Batch size per GPU/TPU core/CPU for training
         per_device_eval_batch_size=4,  # Batch size per GPU/TPU core/CPU for evaluation
-        evaluation_strategy="steps",  # Evaluation is done (and logged) every X steps
+        eval_strategy="steps",  # Evaluation is done (and logged) every eval_steps
         eval_steps=100,  # Number of update steps between two evaluations
         save_steps=100,  # Number of updates steps before two checkpoint saves
         save_total_limit=2,  # Limit the total amount of checkpoints
