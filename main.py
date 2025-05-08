@@ -1,4 +1,5 @@
 import argparse
+import os
 import sys
 
 import config.settings as settings
@@ -82,6 +83,14 @@ def main():
     # Configure global settings based on command line arguments
     settings.USE_CPU = args.use_cpu
     settings.OPTIMIZE_MEMORY = args.optimize_memory
+
+    # Disable CUDA if CPU-only mode is enabled
+    if settings.USE_CPU:
+        os.environ["CUDA_VISIBLE_DEVICES"] = ""
+        # Also disable MPS (Apple Silicon GPU)
+        os.environ["PYTORCH_ENABLE_MPS_FALLBACK"] = "0"
+        os.environ["PYTORCH_MPS_HIGH_WATERMARK_RATIO"] = "0.0"
+        print("⚠️ CPU mode enabled. All GPUs (CUDA and MPS) will be disabled.")
 
     # Get the appropriate device based on availability
     device = get_device()

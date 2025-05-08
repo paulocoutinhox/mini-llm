@@ -78,6 +78,8 @@ def get_device_info():
         dict: Device information
     """
     # Force CPU info if in CPU-only mode
+    from config.settings import USE_CPU
+
     if USE_CPU:
         info = {
             "device_type": "cpu (forced)",
