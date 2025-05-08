@@ -280,6 +280,94 @@ Recommended models for low-memory GPUs (2-4GB VRAM):
 - `facebook/opt-125m` (125M)
 - `bigscience/bloom-560m` (560M)
 
+## Backing Up to S3
+
+The project includes a Python script (`backup_to_s3.py`) to easily back up your model, training data, and configuration to Amazon S3. This is useful for preserving your work and transferring it between different environments.
+
+### Prerequisites
+
+- Python 3
+- Boto3 package installed (`pip install boto3`)
+- AWS credentials configured
+- Access to an S3 bucket
+
+### Installing Dependencies
+
+Install the necessary dependencies for the backup script:
+
+```bash
+pip install boto3
+```
+
+### Environment Variables
+
+The backup script requires the following environment variables:
+
+```bash
+# AWS Credentials (Required)
+export AWS_ACCESS_KEY_ID="your_access_key"
+export AWS_SECRET_ACCESS_KEY="your_secret_key"
+export AWS_DEFAULT_REGION="your_region"
+export S3_BUCKET_NAME="your-bucket-name"
+
+# Backup Configuration (Optional - shown with default values)
+export S3_BUCKET_PATH="mini-llm-backup/"  # Path within the bucket (defaults to "mini-llm-backup/")
+export FOLDER_TO_BACKUP="./temp"          # Local folder to backup (defaults to "./temp")
+```
+
+You only need to set these optional variables if you want to override the default values.
+
+### Running the Backup
+
+Once you've set the environment variables, run the backup script:
+
+```bash
+python3 backup_to_s3.py
+```
+
+The script will:
+1. Create a timestamped tar.gz archive of your specified folder
+2. Upload it to your S3 bucket with public read access
+3. Clean up temporary files
+4. Output a public URL that can be shared or used for downloads
+
+> **Note**: The backup file will be publicly accessible via the generated URL. Make sure you don't include sensitive information if you're backing up to a public-facing bucket.
+
+### Accessing Public Backups
+
+After running the backup script, you'll receive a public URL that looks like:
+```
+https://your-bucket-name.s3.amazonaws.com/mini-llm-backup/backup_2023-05-08_12-34-56.tar.gz
+```
+
+You can share this URL with others or use it to download your backup from any machine without AWS credentials.
+
+### Restoring from Backup
+
+To restore your data from an S3 backup, you have two options:
+
+#### Option 1: Using the public URL (no AWS credentials needed)
+```bash
+# Download the backup using the public URL
+wget https://your-bucket-name.s3.amazonaws.com/mini-llm-backup/your-backup-file.tar.gz
+# or
+curl -O https://your-bucket-name.s3.amazonaws.com/mini-llm-backup/your-backup-file.tar.gz
+
+# Extract the archive
+tar -xzvf your-backup-file.tar.gz -C /destination/path
+```
+
+#### Option 2: Using AWS CLI
+```bash
+# Download the backup archive using AWS CLI
+aws s3 cp s3://your-bucket-name/mini-llm-backup/your-backup-file.tar.gz .
+
+# Extract the archive
+tar -xzvf your-backup-file.tar.gz -C /destination/path
+```
+
+This will restore your model, training data, and other files to the specified destination path.
+
 ## License
 
 [MIT](http://opensource.org/licenses/MIT)
