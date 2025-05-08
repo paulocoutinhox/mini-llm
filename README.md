@@ -183,7 +183,7 @@ The project relies on the following Python packages:
 
 ## Available Models
 
-The project supports a wide range of models from Hugging Face. Here are some popular options. Each model is listed with its Hugging Face identifier followed by its parameter count in parentheses (e.g., `model-name` (size)):
+The project supports a wide range of models from Hugging Face. Here are some popular options. Each model is listed with its Hugging Face identifier followed by its parameter count in parentheses (e.g., `model-name (size)`):
 
 ### Small Models (Mobile/CPU)
 - `distilgpt2` (334M) – Fastest, works well on mobile devices
