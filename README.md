@@ -250,10 +250,10 @@ When training on hardware with limited GPU memory (less than 2GB VRAM), you may 
 
 ### 1. Using CPU Instead of GPU
 
-The most reliable solution is to use the `--cpu-only` flag which forces the model to run on CPU instead of GPU:
+The most reliable solution is to use the `--use-cpu` flag which forces the model to run on CPU instead of GPU:
 
 ```bash
-python main.py --train --cpu-only
+python main.py --train --use-cpu
 ```
 
 This approach:

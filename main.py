@@ -1,8 +1,6 @@
 import argparse
 import sys
 
-import torch
-
 import config.settings as settings
 from model.generation import generate_text
 from model.model_utils import load_model, load_tokenizer
@@ -69,9 +67,9 @@ def parse_args():
 
     # Add option to force CPU usage
     parser.add_argument(
-        "--cpu-only",
+        "--use-cpu",
         action="store_true",
-        help="Force using CPU even if GPU is available (for low memory GPUs)",
+        help="Force using CPU",
     )
 
     return parser.parse_args()
@@ -82,7 +80,7 @@ def main():
     args = parse_args()
 
     # Configure global settings based on command line arguments
-    settings.FORCE_CPU_ONLY = args.cpu_only
+    settings.USE_CPU = args.use_cpu
     settings.OPTIMIZE_MEMORY = args.optimize_memory
 
     # Get the appropriate device based on availability

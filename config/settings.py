@@ -2,13 +2,8 @@ import os
 import sys
 
 # Settings that will be configured by main.py
-FORCE_CPU_ONLY = False
+USE_CPU = False
 OPTIMIZE_MEMORY = False
-
-# Disable CUDA if CPU-only mode is enabled
-if FORCE_CPU_ONLY:
-    os.environ["CUDA_VISIBLE_DEVICES"] = ""
-    print("⚠️ CPU-only mode enabled. GPUs will be disabled.")
 
 # Temporary directory for model and logs
 TMP_DIR = "./temp"

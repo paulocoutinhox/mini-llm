@@ -1,7 +1,5 @@
 import torch
 
-from config.settings import FORCE_CPU_ONLY, OPTIMIZE_MEMORY
-
 
 def memory_less_64gb():
     """
@@ -33,9 +31,11 @@ def get_device():
     Returns:
         torch.device: The best available device
     """
+    from config.settings import OPTIMIZE_MEMORY, USE_CPU
+
     # Force CPU if CPU-only mode is enabled in settings
-    if FORCE_CPU_ONLY:
-        print("⚠️ Using CPU as requested by --cpu-only flag")
+    if USE_CPU:
+        print("⚠️ Using CPU as requested by flag")
         return torch.device("cpu")
 
     # Normal device selection logic
@@ -78,7 +78,7 @@ def get_device_info():
         dict: Device information
     """
     # Force CPU info if in CPU-only mode
-    if FORCE_CPU_ONLY:
+    if USE_CPU:
         info = {
             "device_type": "cpu (forced)",
             "memory_allocated": None,
