@@ -26,12 +26,15 @@ def prepare_dataset(tokenizer):
 
     # Tokenization function for each text entry
     def tokenize_fn(example):
+        # Add beginning-of-sequence (BOS) and end-of-sequence (EOS) tokens around the text
+        # This follows the procedure mentioned for training GPT-Neo models
         return tokenizer(
             example["text"],  # The text to tokenize
             truncation=True,  # Truncate sequences longer than max_length
             padding="max_length",  # Pad sequences to max_length
             max_length=512,  # Maximum sequence length
             return_special_tokens_mask=True,  # Return mask for special tokens
+            add_special_tokens=True,  # Add special tokens (BOS and EOS)
         )
 
     # Apply tokenization to all dataset examples
@@ -127,7 +130,7 @@ def train_model(model, split_dataset, data_collator):
         save_total_limit=2,  # Limit the total amount of checkpoints
         logging_dir=LOG_DIR,  # Directory where the logs will be written
         logging_steps=10,  # Number of update steps between two logs
-        learning_rate=5e-5,  # Initial learning rate for optimizer
+        learning_rate=2e-4,  # Initial learning rate for optimizer
         weight_decay=0.01,  # Weight decay to apply to all layers
         warmup_steps=500,  # Number of steps for the warmup phase
         gradient_accumulation_steps=gradient_accumulation_steps,  # Number of updates steps to accumulate before performing a backward pass
