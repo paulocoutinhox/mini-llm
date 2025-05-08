@@ -106,7 +106,6 @@ The model and generation parameters can be configured in `config/settings.py`:
 
 ```python
 # Model configuration
-MODEL_NAME = "EleutherAI/gpt-neo-2.7B"  # Change to any Hugging Face model
 MODEL_CONFIG = {
     "max_length": 512,  # Maximum sequence length
     "temperature": 0.7,  # Controls randomness
@@ -115,6 +114,33 @@ MODEL_CONFIG = {
     # ... other parameters
 }
 ```
+
+#### Changing the Model
+
+You can change the base model in two ways:
+
+1. **Using environment variables**:
+   ```bash
+   # Linux/macOS
+   export MINI_LLM_MODEL="pierreguillou/gpt2-small-portuguese"
+   python3 main.py --generate "your prompt"
+
+   # Windows (cmd)
+   set MINI_LLM_MODEL=pierreguillou/gpt2-small-portuguese
+   python main.py --generate "your prompt"
+
+   # Windows (PowerShell)
+   $env:MINI_LLM_MODEL="pierreguillou/gpt2-small-portuguese"
+   python main.py --generate "your prompt"
+   ```
+
+2. **Editing the settings file**:
+   Edit the `config/settings.py` file directly to change the default model:
+   ```python
+   MODEL_NAME = os.environ.get("MINI_LLM_MODEL", "EleutherAI/gpt-neo-2.7B")
+   ```
+
+The default model is `EleutherAI/gpt-neo-2.7B` if no environment variable is set.
 
 ## Project Structure
 
@@ -207,8 +233,7 @@ The project supports a wide range of models from Hugging Face. Here are some pop
 5. `stabilityai/stablelm-2-1_6b` (1.6B) – Modern architecture
 
 ### Portuguese (Brazilian - PTBR) Models
-- `saroele/gpt2-small-portuguese` (124M) – GPT-2 trained specifically for Portuguese
-- `pierreguillou/gpt2-small-portuguese` (124M) – Alternative Portuguese GPT-2
+- `pierreguillou/gpt2-small-portuguese` (124M) – GPT-2 trained specifically for Portuguese
 - `unicamp-dl/gpt-neox-pt-small` (125M) – Brazilian model from Unicamp
 - `pierreguillou/gpt2-small-portuguese-blog` (124M) – Optimized for blog content
 - `neuralmind/bert-large-portuguese-cased` (354M) – BERT for Portuguese

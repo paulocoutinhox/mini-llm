@@ -16,8 +16,10 @@ TOKENIZER_CACHE_DIR = os.path.join(TMP_DIR, "tokenizer_cache")
 DATA_PATH = os.path.join(TMP_DIR, "data.txt")
 
 # Model configuration
+# Get model name from environment variable or use gpt2 as default
+MODEL_NAME = os.environ.get("MINI_LLM_MODEL", "EleutherAI/gpt-neo-2.7B")
+
 # fmt: off
-MODEL_NAME = "EleutherAI/gpt-neo-2.7B"
 MODEL_CONFIG = {
     # Generation parameters
     "max_length": 512,  # Maximum sequence length for input and output
