@@ -14,7 +14,19 @@ def load_tokenizer():
         cache_dir=TOKENIZER_CACHE_DIR,
     )
 
+    # Configure special tokens
     tokenizer.pad_token = tokenizer.eos_token
+
+    # Ensure beginning-of-sequence (BOS) and end-of-sequence (EOS) tokens are configured
+    # This is important for separating texts during training, as mentioned
+    # in the documentation for models like pierreguillou/gpt2-small-portuguese
+    if tokenizer.bos_token is None:
+        print("⚠️ BOS token not found, using EOS token as BOS")
+        tokenizer.bos_token = tokenizer.eos_token
+
+    print(
+        f"🔤 Special tokens configured: BOS={tokenizer.bos_token}, EOS={tokenizer.eos_token}, PAD={tokenizer.pad_token}"
+    )
 
     return tokenizer
 
