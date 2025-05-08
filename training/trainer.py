@@ -134,7 +134,12 @@ def train_model(model, split_dataset, data_collator):
     # Enable gradient checkpointing for low memory GPUs
     if low_memory_gpu:
         print("💾 Enabling gradient checkpointing to save memory")
-        model.gradient_checkpointing_enable()
+        try:
+            model.gradient_checkpointing_enable()
+            print("✅ Gradient checkpointing enabled successfully")
+        except Exception as e:
+            print(f"⚠️ Could not enable gradient checkpointing: {str(e)}")
+            print("⚠️ Training will continue but might run out of memory")
 
     # Initialize the Trainer
     # Trainer handles the training loop, evaluation, and model saving

@@ -1,6 +1,8 @@
 import argparse
 import sys
 
+import torch
+
 from model.generation import generate_text
 from model.model_utils import load_model, load_tokenizer
 from training.trainer import prepare_dataset, train_model
@@ -64,6 +66,13 @@ def parse_args():
         help="Apply device-specific memory optimizations",
     )
 
+    # Add option to force CPU usage
+    parser.add_argument(
+        "--cpu-only",
+        action="store_true",
+        help="Force using CPU even if GPU is available (for low memory GPUs)",
+    )
+
     return parser.parse_args()
 
 
@@ -71,8 +80,14 @@ def main():
     # Parse command line arguments
     args = parse_args()
 
-    # Setup device
-    device = get_device(optimize_memory=args.optimize_memory)
+    # Setup device - use CPU if forced, otherwise auto-detect
+    if args.cpu_only:
+        print(
+            "⚠️ Forcing CPU usage (--cpu-only). Training will be slower but use system RAM."
+        )
+        device = torch.device("cpu")
+    else:
+        device = get_device(optimize_memory=args.optimize_memory)
 
     # Show device info if requested
     if args.show_device_info:

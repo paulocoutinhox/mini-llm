@@ -246,19 +246,33 @@ Note: Model availability and compatibility may change. Check the model's documen
 
 ## Training on Limited Hardware
 
-When training on hardware with limited memory (like GPUs with less than 6GB of VRAM), the system will automatically:
+When training on hardware with limited GPU memory (less than 2GB VRAM), you may encounter "CUDA out of memory" errors. The project provides two solutions:
 
-1. Detect low memory conditions
-2. Reduce batch size to 1
-3. Increase gradient accumulation steps to 16
-4. Enable gradient checkpointing when supported by the model
+### 1. Using CPU Instead of GPU
 
-These optimizations allow you to train even on older or less powerful GPUs, though training will be slower.
+The most reliable solution is to use the `--cpu-only` flag which forces the model to run on CPU instead of GPU:
 
-For very large models (7B+ parameters), consider using:
-- A smaller model
-- 8-bit quantization (requires the `bitsandbytes` library)
-- CPU-only training (much slower but uses system RAM)
+```bash
+python main.py --train --cpu-only
+```
+
+This approach:
+- Bypasses GPU memory limitations completely
+- Uses system RAM instead of VRAM
+- Works with any model size
+- Is significantly slower than GPU training
+
+### 2. Using Smaller Models
+
+Instead of using the default 2.7B parameter model, you can switch to a smaller model that fits in your GPU's memory:
+
+```bash
+# Set a smaller model (124M parameters)
+export MINI_LLM_MODEL="gpt2"
+
+# Then train as usual
+python main.py --train
+```
 
 Recommended models for low-memory GPUs (2-4GB VRAM):
 - `gpt2` (124M)
