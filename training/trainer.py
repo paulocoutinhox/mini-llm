@@ -4,7 +4,7 @@ import torch
 from datasets import load_dataset
 from transformers import DataCollatorForLanguageModeling, Trainer, TrainingArguments
 
-from config.settings import DATA_PATH, LOG_DIR, MODEL_DIR
+from config.settings import DATA_PATH, FORCE_CPU_ONLY, LOG_DIR, MODEL_DIR
 from utils.device import get_device
 
 
@@ -71,7 +71,7 @@ def train_model(model, split_dataset, data_collator):
     batch_size = 4
     gradient_accumulation_steps = 4
 
-    if device_type == "cuda":
+    if device_type == "cuda" and not FORCE_CPU_ONLY:
         try:
             gpu_mem = torch.cuda.get_device_properties(0).total_memory / (1024**3)
             print(f"🧠 GPU Memory: {gpu_mem:.2f} GB")
@@ -92,7 +92,7 @@ def train_model(model, split_dataset, data_collator):
     precision_config = {}
 
     # CUDA GPUs support fp16
-    if device_type == "cuda":
+    if device_type == "cuda" and not FORCE_CPU_ONLY:
         precision_config["fp16"] = True
         print("🚀 Using FP16 precision for training (CUDA)")
     # Some CPUs support bfloat16
@@ -103,8 +103,14 @@ def train_model(model, split_dataset, data_collator):
     else:
         print("🚀 Using default precision for training")
 
-    # Configure pin_memory based on device (disable for MPS)
-    use_pin_memory = device_type != "mps"
+    # Configure pin_memory based on device (disable for MPS or CPU)
+    use_pin_memory = device_type == "cuda" and not FORCE_CPU_ONLY
+
+    # If CPU-only, adjust batch size for memory efficiency
+    if FORCE_CPU_ONLY or device_type == "cpu":
+        print("💻 CPU training detected. Adjusting training parameters...")
+        batch_size = 2
+        gradient_accumulation_steps = 8
 
     # Training arguments configuration
     training_args = TrainingArguments(
@@ -131,10 +137,12 @@ def train_model(model, split_dataset, data_collator):
         **precision_config,  # Add precision configuration based on device
     )
 
-    # Enable gradient checkpointing for low memory GPUs
-    if low_memory_gpu:
-        print("💾 Enabling gradient checkpointing to save memory")
+    # Enable gradient checkpointing for low memory GPUs or CPU
+    if (low_memory_gpu or FORCE_CPU_ONLY) and hasattr(
+        model, "gradient_checkpointing_enable"
+    ):
         try:
+            print("💾 Enabling gradient checkpointing to save memory")
             model.gradient_checkpointing_enable()
             print("✅ Gradient checkpointing enabled successfully")
         except Exception as e:

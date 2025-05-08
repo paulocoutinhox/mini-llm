@@ -3,6 +3,7 @@ import sys
 
 import torch
 
+import config.settings as settings
 from model.generation import generate_text
 from model.model_utils import load_model, load_tokenizer
 from training.trainer import prepare_dataset, train_model
@@ -80,14 +81,12 @@ def main():
     # Parse command line arguments
     args = parse_args()
 
-    # Setup device - use CPU if forced, otherwise auto-detect
-    if args.cpu_only:
-        print(
-            "⚠️ Forcing CPU usage (--cpu-only). Training will be slower but use system RAM."
-        )
-        device = torch.device("cpu")
-    else:
-        device = get_device(optimize_memory=args.optimize_memory)
+    # Configure global settings based on command line arguments
+    settings.FORCE_CPU_ONLY = args.cpu_only
+    settings.OPTIMIZE_MEMORY = args.optimize_memory
+
+    # Get the appropriate device based on availability
+    device = get_device()
 
     # Show device info if requested
     if args.show_device_info:

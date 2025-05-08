@@ -1,5 +1,7 @@
 import torch
 
+from config.settings import FORCE_CPU_ONLY, OPTIMIZE_MEMORY
+
 
 def memory_less_64gb():
     """
@@ -23,17 +25,20 @@ def memory_less_64gb():
         return True
 
 
-def get_device(optimize_memory=True):
+def get_device():
     """
     Detect and return the best available device (GPU > MPS > CPU)
     with proper configuration for optimal performance
 
-    Args:
-        optimize_memory (bool): Whether to apply memory optimizations for Apple Silicon
-
     Returns:
         torch.device: The best available device
     """
+    # Force CPU if CPU-only mode is enabled in settings
+    if FORCE_CPU_ONLY:
+        print("⚠️ Using CPU as requested by --cpu-only flag")
+        return torch.device("cpu")
+
+    # Normal device selection logic
     if torch.cuda.is_available():
         device = torch.device("cuda")
         print("🟩 Using CUDA GPU")
@@ -46,7 +51,7 @@ def get_device(optimize_memory=True):
         print("🟨 Using Apple MPS GPU")
 
         # Apply M1/M2/M3 specific optimizations
-        if optimize_memory:
+        if OPTIMIZE_MEMORY:
             # Limit memory usage for MPS
             torch.set_num_threads(6)  # Limit CPU threads for MPS
 
@@ -59,7 +64,7 @@ def get_device(optimize_memory=True):
         print("🟥 Using CPU")
 
         # CPU specific optimizations
-        if optimize_memory:
+        if OPTIMIZE_MEMORY:
             torch.set_num_threads(8)  # Limit CPU threads
 
     return device
@@ -72,6 +77,16 @@ def get_device_info():
     Returns:
         dict: Device information
     """
+    # Force CPU info if in CPU-only mode
+    if FORCE_CPU_ONLY:
+        info = {
+            "device_type": "cpu (forced)",
+            "memory_allocated": None,
+            "memory_reserved": None,
+            "memory_total": None,
+        }
+        return info
+
     info = {
         "device_type": None,
         "memory_allocated": None,
