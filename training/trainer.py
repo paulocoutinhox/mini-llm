@@ -62,15 +62,39 @@ def train_model(model, split_dataset, data_collator):
         split_dataset: The tokenized dataset split into train and validation
         data_collator: The data collator for batching
     """
+    from config.settings import USE_CPU
+
     # Detect device type for precision settings
     device = get_device()
     device_type = device.type
+
+    # Check GPU memory if using CUDA
+    low_memory_gpu = False
+    batch_size = 4
+    gradient_accumulation_steps = 4
+
+    if device_type == "cuda" and not USE_CPU:
+        try:
+            gpu_mem = torch.cuda.get_device_properties(0).total_memory / (1024**3)
+            print(f"🧠 GPU Memory: {gpu_mem:.2f} GB")
+
+            # Adjust settings for low memory GPUs
+            if gpu_mem < 6:  # Less than 6GB is considered low memory
+                low_memory_gpu = True
+                batch_size = 1  # Reduce batch size dramatically
+                gradient_accumulation_steps = 16  # Accumulate more gradients
+                print("⚠️ Low memory GPU detected! Adjusting training parameters...")
+        except:
+            print("⚠️ Could not detect GPU memory. Using conservative settings.")
+            low_memory_gpu = True
+            batch_size = 2
+            gradient_accumulation_steps = 8
 
     # Configure precision based on device capability
     precision_config = {}
 
     # CUDA GPUs support fp16
-    if device_type == "cuda":
+    if device_type == "cuda" and not USE_CPU:
         precision_config["fp16"] = True
         print("🚀 Using FP16 precision for training (CUDA)")
     # Some CPUs support bfloat16
@@ -81,16 +105,22 @@ def train_model(model, split_dataset, data_collator):
     else:
         print("🚀 Using default precision for training")
 
-    # Configure pin_memory based on device (disable for MPS)
-    use_pin_memory = device_type != "mps"
+    # Configure pin_memory based on device (disable for MPS or CPU)
+    use_pin_memory = device_type == "cuda" and not USE_CPU
+
+    # If CPU-only, adjust batch size for memory efficiency
+    if USE_CPU or device_type == "cpu":
+        print("💻 CPU training detected. Adjusting training parameters...")
+        batch_size = 2
+        gradient_accumulation_steps = 8
 
     # Training arguments configuration
     training_args = TrainingArguments(
         output_dir=MODEL_DIR,  # Directory where model checkpoints will be saved
         overwrite_output_dir=True,  # Overwrite the content of the output directory
         num_train_epochs=10,  # Total number of training epochs to perform
-        per_device_train_batch_size=4,  # Batch size per GPU/TPU core/CPU for training
-        per_device_eval_batch_size=4,  # Batch size per GPU/TPU core/CPU for evaluation
+        per_device_train_batch_size=batch_size,  # Batch size per GPU/TPU core/CPU for training
+        per_device_eval_batch_size=batch_size,  # Batch size per GPU/TPU core/CPU for evaluation
         eval_strategy="steps",  # Evaluation is done (and logged) every eval_steps
         eval_steps=100,  # Number of update steps between two evaluations
         save_steps=100,  # Number of updates steps before two checkpoint saves
@@ -100,13 +130,24 @@ def train_model(model, split_dataset, data_collator):
         learning_rate=5e-5,  # Initial learning rate for optimizer
         weight_decay=0.01,  # Weight decay to apply to all layers
         warmup_steps=500,  # Number of steps for the warmup phase
-        gradient_accumulation_steps=4,  # Number of updates steps to accumulate before performing a backward pass
+        gradient_accumulation_steps=gradient_accumulation_steps,  # Number of updates steps to accumulate before performing a backward pass
         load_best_model_at_end=True,  # Whether to load the best model found during training at the end of training
         metric_for_best_model="eval_loss",  # The metric to use to compare models
         greater_is_better=False,  # Whether the `metric_for_best_model` should be maximized or not
         dataloader_pin_memory=use_pin_memory,  # Whether to pin memory in DataLoader (disabled for MPS)
+        optim="adamw_torch",  # Use the PyTorch implementation of AdamW (more memory efficient)
         **precision_config,  # Add precision configuration based on device
     )
+
+    # Enable gradient checkpointing for low memory GPUs or CPU
+    if (low_memory_gpu or USE_CPU) and hasattr(model, "gradient_checkpointing_enable"):
+        try:
+            print("💾 Enabling gradient checkpointing to save memory")
+            model.gradient_checkpointing_enable()
+            print("✅ Gradient checkpointing enabled successfully")
+        except Exception as e:
+            print(f"⚠️ Could not enable gradient checkpointing: {str(e)}")
+            print("⚠️ Training will continue but might run out of memory")
 
     # Initialize the Trainer
     # Trainer handles the training loop, evaluation, and model saving

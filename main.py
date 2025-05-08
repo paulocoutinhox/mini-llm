@@ -1,6 +1,8 @@
 import argparse
+import os
 import sys
 
+import config.settings as settings
 from model.generation import generate_text
 from model.model_utils import load_model, load_tokenizer
 from training.trainer import prepare_dataset, train_model
@@ -64,6 +66,13 @@ def parse_args():
         help="Apply device-specific memory optimizations",
     )
 
+    # Add option to force CPU usage
+    parser.add_argument(
+        "--use-cpu",
+        action="store_true",
+        help="Force using CPU",
+    )
+
     return parser.parse_args()
 
 
@@ -71,8 +80,20 @@ def main():
     # Parse command line arguments
     args = parse_args()
 
-    # Setup device
-    device = get_device(optimize_memory=args.optimize_memory)
+    # Configure global settings based on command line arguments
+    settings.USE_CPU = args.use_cpu
+    settings.OPTIMIZE_MEMORY = args.optimize_memory
+
+    # Disable CUDA if CPU-only mode is enabled
+    if settings.USE_CPU:
+        os.environ["CUDA_VISIBLE_DEVICES"] = ""
+        # Also disable MPS (Apple Silicon GPU)
+        os.environ["PYTORCH_ENABLE_MPS_FALLBACK"] = "0"
+        os.environ["PYTORCH_MPS_HIGH_WATERMARK_RATIO"] = "0.0"
+        print("⚠️ CPU mode enabled. All GPUs (CUDA and MPS) will be disabled.")
+
+    # Get the appropriate device based on availability
+    device = get_device()
 
     # Show device info if requested
     if args.show_device_info:

@@ -1,4 +1,9 @@
 import os
+import sys
+
+# Settings that will be configured by main.py
+USE_CPU = False
+OPTIMIZE_MEMORY = False
 
 # Temporary directory for model and logs
 TMP_DIR = "./temp"
