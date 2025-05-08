@@ -430,7 +430,8 @@ wget https://your-bucket-name.s3.amazonaws.com/mini-llm-backup/your-backup-file.
 curl -O https://your-bucket-name.s3.amazonaws.com/mini-llm-backup/your-backup-file.tar.gz
 
 # Extract the archive
-tar -xzvf your-backup-file.tar.gz -C /destination/path
+rm -rf temp/
+tar -xzvf your-backup-file.tar.gz -C .
 ```
 
 #### Option 2: Using AWS CLI
@@ -439,7 +440,8 @@ tar -xzvf your-backup-file.tar.gz -C /destination/path
 aws s3 cp s3://your-bucket-name/mini-llm-backup/your-backup-file.tar.gz .
 
 # Extract the archive
-tar -xzvf your-backup-file.tar.gz -C /destination/path
+rm -rf temp/
+tar -xzvf your-backup-file.tar.gz -C .
 ```
 
 This will restore your model, training data, and other files to the specified destination path.
