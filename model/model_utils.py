@@ -1,34 +1,62 @@
-from transformers import GPT2LMHeadModel, GPT2Tokenizer
+from transformers import AutoModelForCausalLM, AutoTokenizer
 
-from config.settings import MODEL_DIR, TOKENIZER_CACHE_DIR
+from config.settings import MODEL_DIR, MODEL_NAME, TOKENIZER_CACHE_DIR
 
 
 def load_tokenizer():
     """
-    Load and configure the GPT-2 tokenizer
+    Load and configure the tokenizer
     Returns:
-        GPT2Tokenizer: Configured tokenizer
+        AutoTokenizer: Configured tokenizer
     """
-    tokenizer = GPT2Tokenizer.from_pretrained("gpt2", cache_dir=TOKENIZER_CACHE_DIR)
-    tokenizer.pad_token = (
-        tokenizer.eos_token
-    )  # GPT2 doesn't have pad_token, so we reuse eos_token
+    tokenizer = AutoTokenizer.from_pretrained(
+        MODEL_NAME,
+        cache_dir=TOKENIZER_CACHE_DIR,
+    )
+
+    tokenizer.pad_token = tokenizer.eos_token
+
     return tokenizer
 
 
-def load_model(force_train=False):
+def load_model(force_train=False, use_original=False):
     """
-    Load the GPT-2 model, either from saved state or pre-trained
+    Load the model, either from saved state or pre-trained
     Args:
         force_train (bool): Whether to force retraining the model
+        use_original (bool): Whether to use the original model without fine-tuning
     Returns:
-        GPT2LMHeadModel: The loaded model
+        AutoModelForCausalLM: The loaded model
     """
-    if not force_train:
-        print("✅ Using saved model.")
-        model = GPT2LMHeadModel.from_pretrained(MODEL_DIR)
+    if use_original:
+        print(
+            f"🌍 Using original pre-trained model: {MODEL_NAME} (without fine-tuning)"
+        )
+        model = AutoModelForCausalLM.from_pretrained(
+            MODEL_NAME,
+            ignore_mismatched_sizes=True,
+            trust_remote_code=True,
+            torch_dtype="auto",
+        )
+    elif not force_train:
+        print(f"✅ Using saved fine-tuned model (based on {MODEL_NAME})")
+        model = AutoModelForCausalLM.from_pretrained(
+            MODEL_DIR,
+            ignore_mismatched_sizes=True,
+            trust_remote_code=True,
+            torch_dtype="auto",
+        )
     else:
-        print("🔁 Loading pre-trained model...")
-        model = GPT2LMHeadModel.from_pretrained("gpt2")
+        print(f"🔁 Loading pre-trained model: {MODEL_NAME}")
+        model = AutoModelForCausalLM.from_pretrained(
+            MODEL_NAME,
+            ignore_mismatched_sizes=True,
+            trust_remote_code=True,
+            torch_dtype="auto",
+        )
+
+    # Display model parameters count
+    model_parameters = sum(p.numel() for p in model.parameters())
+    print(f"📊 Model parameters: {model_parameters/1000000:.2f}M")
 
     return model
