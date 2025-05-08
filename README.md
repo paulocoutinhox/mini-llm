@@ -105,7 +105,6 @@ Note: You must use the `--train` flag whenever you modify the `temp/data.txt` fi
 The model and generation parameters can be configured in `config/settings.py`:
 
 ```python
-# Model configuration
 MODEL_CONFIG = {
     "max_length": 512,  # Maximum sequence length
     "temperature": 0.7,  # Controls randomness
@@ -154,7 +153,8 @@ The default model is `EleutherAI/gpt-neo-2.7B` if no environment variable is set
 ├── training/
 │   └── trainer.py         # Training logic
 ├── utils/
-│   └── device.py          # Device utilities
+│   ├── device.py          # Device utilities
+│   └── file.py            # File operations utilities
 ├── temp/                  # Temporary files directory
 │   ├── data.txt           # Training data
 │   ├── model/             # Saved model
@@ -162,7 +162,8 @@ The default model is `EleutherAI/gpt-neo-2.7B` if no environment variable is set
 │   ├── tokenizer_cache/   # Tokenizer cache
 │   └── huggingface/       # Hugging Face cache
 ├── main.py                # Main application file
-└── requirements.txt       # Project dependencies
+├── requirements.txt       # Project dependencies
+└── README.md              # Project documentation
 ```
 
 ## Dependencies

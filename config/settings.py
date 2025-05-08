@@ -15,8 +15,13 @@ TOKENIZER_CACHE_DIR = os.path.join(TMP_DIR, "tokenizer_cache")
 # Path to your training data
 DATA_PATH = os.path.join(TMP_DIR, "data.txt")
 
+# Whether to use local cache for Hugging Face models
+# Set to True to store all HF files in the project directory
+# Set to False to use the default global HF cache
+USE_LOCAL_HF_CACHE = False
+
 # Model configuration
-# Get model name from environment variable or use gpt2 as default
+# Get model name from environment variable or use default
 MODEL_NAME = os.environ.get("MINI_LLM_MODEL", "EleutherAI/gpt-neo-2.7B")
 
 # fmt: off
@@ -42,8 +47,12 @@ MODEL_CONFIG = {
 }
 # fmt: on
 
-# Set Hugging Face home directory
-os.environ["HF_HOME"] = os.path.join(TMP_DIR, "huggingface")
+# Set Hugging Face home directory if local cache is enabled
+if USE_LOCAL_HF_CACHE:
+    print("📁 Using local Hugging Face cache")
+    os.environ["HF_HOME"] = os.path.join(TMP_DIR, "huggingface")
+else:
+    print("📁 Using global Hugging Face cache")
 
 # Create necessary directories
 os.makedirs(TMP_DIR, exist_ok=True)
