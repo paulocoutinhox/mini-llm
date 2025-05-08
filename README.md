@@ -110,6 +110,46 @@ python3 main.py --train --clean
 
 Note: You must use the `--train` flag whenever you modify the `temp/data.txt` file to ensure the model learns from the new content.
 
+### Understanding Training Logs
+
+During model training, you'll see various numbers and metrics displayed in the terminal. Think of these as the "vital signs" of your model's learning process. Even if you're new to machine learning, these metrics can help you understand if your model is learning well.
+
+#### What You'll See in the Terminal
+
+The output will look something like this:
+```
+{'loss': 2.5481, 'grad_norm': 2.6401376724243164, 'learning_rate': 1.538135593220339e-05, 'epoch': 7.01}
+```
+
+#### Simple Explanations of These Numbers
+
+**The Important Training Numbers (shown frequently):**
+- **loss**: Think of this as an "error score" - the lower, the better. It shows how well the model is learning from your data. For language models, values that start high (around 4-5) and gradually decrease to 2-3 indicate good learning progress.
+- **epoch**: Shows how many times the model has gone through your entire dataset. For example, 7.01 means "just started the 7th round of training."
+
+**Advanced Metrics (for those who want to know more):**
+- **grad_norm**: Shows how dramatically the model is changing its internal knowledge with each update. Consistent values without sudden jumps are good.
+- **learning_rate**: Controls how big of adjustments the model makes when learning. This number typically gets smaller as training progresses.
+
+**Evaluation Metrics (shown occasionally):**
+```
+{'eval_loss': 3.1315, 'eval_runtime': 11.1366, 'eval_samples_per_second': 290.663, 'eval_steps_per_second': 72.733, 'epoch': 6.97}
+```
+
+- **eval_loss**: Similar to regular loss, but measured on data the model hasn't seen during training. This helps verify if the model is truly learning useful patterns rather than just memorizing.
+
+#### What Success Looks Like
+
+You're on the right track if:
+
+- **The loss numbers are getting smaller** over time - this is the most important indicator that training is working.
+- **The eval_loss is also decreasing** - if only the training loss decreases but eval_loss doesn't, the model might just be memorizing your data.
+- **The loss eventually stabilizes** - at some point, the numbers will stop decreasing significantly, which usually indicates the model has learned what it can.
+
+Don't worry too much about the exact values - what matters is the trend. If the loss is generally decreasing, your model is learning!
+
+The system will automatically save the best version of your model (the one with the lowest eval_loss) to the `temp/model/` directory.
+
 ### Configuration
 
 The model and generation parameters can be configured in `config/settings.py`:
