@@ -62,12 +62,22 @@ You can also modify this file with any text you want to train the model on. Afte
 To generate text based on a prompt:
 
 ```bash
+# Generate text using your fine-tuned model (saved in temp/model/)
 python3 main.py --generate "your prompt here"
+
+# Generate text using the original pre-trained model (not fine-tuned)
+python3 main.py --generate "your prompt here" --use-original
 ```
+
+By default (without the `--use-original` flag), the system will use your fine-tuned model from the `temp/model/` directory. If you haven't trained a model yet, or want to compare results with the original pre-trained model, use the `--use-original` flag.
 
 For example:
 ```bash
+# Using your fine-tuned model
 python3 main.py --generate "jesus disse"
+
+# Using the original pre-trained model
+python3 main.py --generate "jesus disse" --use-original
 ```
 
 #### Comparing Original vs Fine-tuned Models
