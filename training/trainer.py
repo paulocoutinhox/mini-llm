@@ -118,11 +118,11 @@ def train_model(model, split_dataset, data_collator):
     training_args = TrainingArguments(
         output_dir=MODEL_DIR,  # Directory where model checkpoints will be saved
         overwrite_output_dir=True,  # Overwrite the content of the output directory
-        num_train_epochs=10,  # Total number of training epochs to perform
+        num_train_epochs=20,  # Total number of training epochs to perform
         per_device_train_batch_size=batch_size,  # Batch size per GPU/TPU core/CPU for training
         per_device_eval_batch_size=batch_size,  # Batch size per GPU/TPU core/CPU for evaluation
         eval_strategy="steps",  # Evaluation is done (and logged) every eval_steps
-        eval_steps=100,  # Number of update steps between two evaluations
+        eval_steps=50,  # Number of update steps between two evaluations
         save_steps=100,  # Number of updates steps before two checkpoint saves
         save_total_limit=2,  # Limit the total amount of checkpoints
         logging_dir=LOG_DIR,  # Directory where the logs will be written
@@ -161,5 +161,6 @@ def train_model(model, split_dataset, data_collator):
 
     # Run training
     trainer.train()
+
     # Save the final model
     trainer.save_model(MODEL_DIR)
