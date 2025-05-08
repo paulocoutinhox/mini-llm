@@ -32,13 +32,28 @@ def load_model(force_train=False, use_original=False):
         print(
             f"🌍 Using original pre-trained model: {MODEL_NAME} (without fine-tuning)"
         )
-        model = AutoModelForCausalLM.from_pretrained(MODEL_NAME)
+        model = AutoModelForCausalLM.from_pretrained(
+            MODEL_NAME,
+            ignore_mismatched_sizes=True,
+            trust_remote_code=True,
+            torch_dtype="auto",
+        )
     elif not force_train:
         print(f"✅ Using saved fine-tuned model (based on {MODEL_NAME})")
-        model = AutoModelForCausalLM.from_pretrained(MODEL_DIR)
+        model = AutoModelForCausalLM.from_pretrained(
+            MODEL_DIR,
+            ignore_mismatched_sizes=True,
+            trust_remote_code=True,
+            torch_dtype="auto",
+        )
     else:
         print(f"🔁 Loading pre-trained model: {MODEL_NAME}")
-        model = AutoModelForCausalLM.from_pretrained(MODEL_NAME)
+        model = AutoModelForCausalLM.from_pretrained(
+            MODEL_NAME,
+            ignore_mismatched_sizes=True,
+            trust_remote_code=True,
+            torch_dtype="auto",
+        )
 
     # Display model parameters count
     model_parameters = sum(p.numel() for p in model.parameters())

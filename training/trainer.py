@@ -1,9 +1,11 @@
 import os
 
+import torch
 from datasets import load_dataset
 from transformers import DataCollatorForLanguageModeling, Trainer, TrainingArguments
 
 from config.settings import DATA_PATH, LOG_DIR, MODEL_DIR
+from utils.device import get_device
 
 
 def prepare_dataset(tokenizer):
@@ -60,8 +62,27 @@ def train_model(model, split_dataset, data_collator):
         split_dataset: The tokenized dataset split into train and validation
         data_collator: The data collator for batching
     """
+    # Detect device type for precision settings
+    device = get_device()
+    device_type = device.type
 
-    # Doc: https://huggingface.co/docs/transformers/en/main_classes/trainer
+    # Configure precision based on device capability
+    precision_config = {}
+
+    # CUDA GPUs support fp16
+    if device_type == "cuda":
+        precision_config["fp16"] = True
+        print("🚀 Using FP16 precision for training (CUDA)")
+    # Some CPUs support bfloat16
+    elif device_type == "cpu" and hasattr(torch, "bfloat16"):
+        precision_config["bf16"] = True
+        print("🚀 Using BF16 precision for training (CPU)")
+    # MPS and other devices use default precision
+    else:
+        print("🚀 Using default precision for training")
+
+    # Configure pin_memory based on device (disable for MPS)
+    use_pin_memory = device_type != "mps"
 
     # Training arguments configuration
     training_args = TrainingArguments(
@@ -80,10 +101,11 @@ def train_model(model, split_dataset, data_collator):
         weight_decay=0.01,  # Weight decay to apply to all layers
         warmup_steps=500,  # Number of steps for the warmup phase
         gradient_accumulation_steps=4,  # Number of updates steps to accumulate before performing a backward pass
-        fp16=True,  # Whether to use fp16 16-bit (mixed) precision training
         load_best_model_at_end=True,  # Whether to load the best model found during training at the end of training
         metric_for_best_model="eval_loss",  # The metric to use to compare models
         greater_is_better=False,  # Whether the `metric_for_best_model` should be maximized or not
+        dataloader_pin_memory=use_pin_memory,  # Whether to pin memory in DataLoader (disabled for MPS)
+        **precision_config,  # Add precision configuration based on device
     )
 
     # Initialize the Trainer
