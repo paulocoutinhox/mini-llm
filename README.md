@@ -162,18 +162,24 @@ The default model is `EleutherAI/gpt-neo-2.7B` if no environment variable is set
 │   ├── tokenizer_cache/   # Tokenizer cache
 │   └── huggingface/       # Hugging Face cache
 ├── main.py                # Main application file
+├── backup_to_s3.py        # S3 backup utility script
 ├── requirements.txt       # Project dependencies
 └── README.md              # Project documentation
 ```
 
 ## Dependencies
 
-The project uses the following main dependencies:
-- torch
-- transformers
-- accelerate
-- scipy
-- datasets
+The project relies on the following Python packages:
+
+- **torch**: PyTorch deep learning framework that provides tensor computation and neural networks
+- **transformers**: Hugging Face library that provides pre-trained models and utilities for natural language processing
+- **accelerate**: Library that enables easy use of distributed training on multiple GPUs/TPUs
+- **scipy**: Scientific computing library used for various mathematical operations
+- **datasets**: Hugging Face library for managing and processing training datasets
+- **black**: Code formatter used for maintaining consistent code style
+- **packaging**: Utilities for parsing and comparing version numbers
+- **psutil**: Cross-platform library for retrieving system information (memory, CPU)
+- **boto3**: AWS SDK for Python, used by the backup script to interact with S3
 
 ## Available Models
 
