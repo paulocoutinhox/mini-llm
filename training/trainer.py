@@ -4,7 +4,7 @@ import torch
 from datasets import load_dataset
 from transformers import DataCollatorForLanguageModeling, Trainer, TrainingArguments
 
-from config.settings import DATA_PATH, LOG_DIR, MODEL_DIR
+from config.settings import DATA_PATH, LOG_DIR, MODEL_DIR, TRAIN_EPOCHS
 from utils.device import get_device
 
 
@@ -121,7 +121,7 @@ def train_model(model, split_dataset, data_collator):
     training_args = TrainingArguments(
         output_dir=MODEL_DIR,  # Directory where model checkpoints will be saved
         overwrite_output_dir=True,  # Overwrite the content of the output directory
-        num_train_epochs=20,  # Total number of training epochs to perform
+        num_train_epochs=TRAIN_EPOCHS,  # Number of training epochs from environment variable
         per_device_train_batch_size=batch_size,  # Batch size per GPU/TPU core/CPU for training
         per_device_eval_batch_size=batch_size,  # Batch size per GPU/TPU core/CPU for evaluation
         eval_strategy="steps",  # Evaluation is done (and logged) every eval_steps

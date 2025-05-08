@@ -191,6 +191,26 @@ You can change the base model in two ways:
 
 The default model is `EleutherAI/gpt-neo-2.7B` if no environment variable is set.
 
+#### Configuring Training Epochs
+
+You can customize the number of training epochs using an environment variable:
+
+```bash
+# Linux/macOS
+export MINI_LLM_EPOCHS=5
+python3 main.py --train
+
+# Windows (cmd)
+set MINI_LLM_EPOCHS=5
+python main.py --train
+
+# Windows (PowerShell)
+$env:MINI_LLM_EPOCHS=5
+python main.py --train
+```
+
+The default is 20 epochs if not specified. For models already pre-trained in your target language, fewer epochs (1-5) may be sufficient.
+
 ## Project Structure
 
 ```

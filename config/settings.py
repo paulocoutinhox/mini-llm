@@ -29,6 +29,9 @@ USE_LOCAL_HF_CACHE = False
 # Get model name from environment variable or use default
 MODEL_NAME = os.environ.get("MINI_LLM_MODEL", "EleutherAI/gpt-neo-2.7B")
 
+# Get training epochs from environment variable or use default (20)
+TRAIN_EPOCHS = int(os.environ.get("MINI_LLM_EPOCHS", "20"))
+
 # fmt: off
 MODEL_CONFIG = {
     # Generation parameters
