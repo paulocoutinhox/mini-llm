@@ -1,3 +1,5 @@
+import os
+
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 from config.settings import MODEL_DIR, MODEL_NAME, TOKENIZER_CACHE_DIR
@@ -9,10 +11,17 @@ def load_tokenizer():
     Returns:
         AutoTokenizer: Configured tokenizer
     """
-    tokenizer = AutoTokenizer.from_pretrained(
-        MODEL_NAME,
-        cache_dir=TOKENIZER_CACHE_DIR,
-    )
+    # First try to load from the model directory if it exists (for consistency with fine-tuned model)
+    if os.path.exists(os.path.join(MODEL_DIR, "tokenizer_config.json")):
+        print(f"✅ Loading tokenizer from saved fine-tuned model")
+        tokenizer = AutoTokenizer.from_pretrained(MODEL_DIR)
+    else:
+        # Fall back to the specified model name if no saved tokenizer exists
+        print(f"🔄 Loading tokenizer from pre-trained model: {MODEL_NAME}")
+        tokenizer = AutoTokenizer.from_pretrained(
+            MODEL_NAME,
+            cache_dir=TOKENIZER_CACHE_DIR,
+        )
 
     # Configure special tokens
     tokenizer.pad_token = tokenizer.eos_token
