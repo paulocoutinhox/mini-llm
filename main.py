@@ -1,41 +1,97 @@
-import os
+import argparse
 import sys
 
-from config.settings import MODEL_DIR
 from model.generation import generate_text
 from model.model_utils import load_model, load_tokenizer
 from training.trainer import prepare_dataset, train_model
 from utils.device import get_device
+from utils.file import clean_temp_dir
+
+
+def parse_args():
+    """
+    Parse command line arguments
+    Returns:
+        argparse.Namespace: Parsed arguments
+    """
+    parser = argparse.ArgumentParser(
+        description="Train or generate text with the language model"
+    )
+
+    # Create a mutually exclusive group for train/generate modes
+    mode_group = parser.add_mutually_exclusive_group(required=True)
+    mode_group.add_argument(
+        "--train",
+        action="store_true",
+        help="Train the model (ignores prompt if provided)",
+    )
+    mode_group.add_argument(
+        "--generate", action="store_true", help="Generate text from a prompt"
+    )
+
+    # Add prompt argument
+    parser.add_argument(
+        "prompt",
+        nargs="?",
+        help="The prompt to generate text from (required for --generate mode)",
+    )
+
+    # Add clean option for training
+    parser.add_argument(
+        "--clean",
+        action="store_true",
+        help="Clean temporary directory before training (removes all cached data)",
+    )
+
+    return parser.parse_args()
 
 
 def main():
-    # === CLI Arguments ===
-    if len(sys.argv) < 2:
-        print('Usage: python3 main.py "your prompt here" [--train]')
-        sys.exit(1)
+    # Parse command line arguments
+    args = parse_args()
 
-    prompt = sys.argv[1]  # The user input prompt to generate text from
-    force_train = "--train" in sys.argv  # Whether to force retraining the model
-
-    # === Setup ===
+    # Setup
     device = get_device()
     tokenizer = load_tokenizer()
-    model = load_model(force_train=force_train)
+    model = load_model(force_train=args.train)
 
-    # === Train the model if needed ===
-    if not os.path.exists(MODEL_DIR) or force_train:
+    # Resize token embeddings to match the tokenizer's vocabulary size
+    # This is necessary because:
+    # 1. When we add special tokens (like pad_token), the tokenizer's vocabulary size increases
+    # 2. The model's embedding layer needs to match this new vocabulary size
+    # 3. Without resizing, we would get an error when trying to use tokens that weren't in the original model
+    # 4. This ensures the model can handle all tokens in the tokenizer's vocabulary
+    model.resize_token_embeddings(len(tokenizer))
+
+    # Move the model to the specified device (CPU/GPU)
+    # This is necessary because:
+    # 1. The model and its parameters need to be on the same device as the input data
+    # 2. GPU (CUDA/MPS) is much faster for deep learning operations
+    # 3. The device is automatically selected based on availability:
+    #    - CUDA for NVIDIA GPUs
+    #    - MPS for Apple Silicon GPUs
+    #    - CPU as fallback
+    # 4. All model parameters and buffers are moved to the device
+    model.to(device)
+
+    # Train or Generate
+    if args.train:
+        if args.clean:
+            clean_temp_dir()
+
         print("🔁 Training model...")
         tokenized_dataset, data_collator = prepare_dataset(tokenizer)
         train_model(model, tokenized_dataset, data_collator)
+        print("✅ Training completed!")
 
-    # Resize token embeddings in case pad_token was added after loading the model
-    model.resize_token_embeddings(len(tokenizer))
-    model.to(device)
+    elif args.generate:
+        if not args.prompt:
+            print("Error: Prompt is required for generation mode")
+            sys.exit(1)
 
-    # === Generate and output text ===
-    print("\n📜 Prompt:", prompt)
-    print("\n📘 Generated Text:\n")
-    print(generate_text(model, tokenizer, prompt, device))
+        print("\n📜 Prompt:", args.prompt)
+        print("\n📘 Generated Text:\n")
+        print(generate_text(model, tokenizer, args.prompt, device))
 
 
 if __name__ == "__main__":
